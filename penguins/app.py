@@ -1,6 +1,6 @@
 import pickle
 import numpy as np
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, render_template
 
 classes = ['Adelie', 'Chinstrap', 'Gentoo']
 
@@ -33,7 +33,11 @@ def predict(vectorizer, scaler, model):
     }
     return jsonify(result)
 
-app = Flask('penguins')
+app = Flask('penguins', template_folder='.')
+
+@app.route("/")
+def index():
+    return render_template("./index.html")
 
 @app.route('/predict/<alg>', methods=['POST'])
 def predict_type(alg):
@@ -51,7 +55,7 @@ def predict_type(alg):
         with open(model_files[alg], 'rb') as f:
             vectorizer, scaler, model = pickle.load(f)
     except:
-        return jsonify({'error': f'Model file not found for type: {alg}'}), 500
+        return jsonify({'error': f'model file not found for type: {alg}'}), 500
 
     return predict(vectorizer, scaler, model)
 
